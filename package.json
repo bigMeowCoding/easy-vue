@@ -11,6 +11,8 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "@types/lodash-es": "^4.17.6",
+    "lodash-es": "^4.17.21",
     "prettier": "^2.7.1",
     "vite": "^3.2.4"
   }

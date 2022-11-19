@@ -1,10 +1,20 @@
+import { isFunction, isString } from "lodash-es";
+
 interface IVNode {
-  tag: string;
-  children: string | IVNode;
-  props: { [key: string]: any };
+  tag: string | Function;
+  children?: string | IVNode;
+  props?: { [key: string]: any };
 }
 
-function render(vNode: IVNode, container: HTMLElement) {
+interface IElementVNode extends IVNode {
+  tag: string;
+}
+
+interface IComponentVNode extends IVNode {
+  tag: Function;
+}
+
+function moundElement(vNode: IElementVNode, container: HTMLElement) {
   const el = document.createElement(vNode.tag);
   for (const prop of Object.keys(vNode.props)) {
     if (prop.startsWith("on")) {
@@ -23,9 +33,34 @@ function render(vNode: IVNode, container: HTMLElement) {
   }
   container.appendChild(el);
 }
+function mountComponent(vNode: IComponentVNode, container: HTMLElement) {
+  const render = vNode.tag();
+  moundElement(render, container);
+}
+
+function render(vNode: IVNode, container: HTMLElement) {
+  const tagAttr = vNode.tag;
+  if (isString(tagAttr)) {
+    moundElement(vNode as IElementVNode, container);
+  } else if (isFunction(tagAttr)) {
+    mountComponent(vNode as IComponentVNode, container);
+  }
+}
 
 render(
   {
+    tag: "component",
+    props: {
+      onClick: () => {
+        alert("我是个大组件");
+      },
+    },
+    children: "i am component",
+  },
+  document.body
+);
+const component = function () {
+  return {
     tag: "div",
     props: {
       onClick: () => {
@@ -33,6 +68,11 @@ render(
       },
     },
     children: "i am div",
+  };
+};
+render(
+  {
+    tag: component,
   },
   document.body
 );
